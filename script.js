@@ -37,7 +37,15 @@ document.addEventListener('DOMContentLoaded', function () {
 	            updatePager(meta.page, meta.total_pages);
 	        })
 	        .catch(error => {
-	            console.error('Error fetching breweries:', error);
+
+		        if (error.response && error.response.status === 401) {
+		            console.error('Unauthorized: Token is invalid or expired.');
+		            localStorage.removeItem('spa_token');
+		            window.location.href = './login.html';
+		        } else {
+		            console.error('Error fetching breweries:', error);
+		            alert('An error occurred while fetching breweries. Please try again later.');
+		        }
 	        });
 
     	}
