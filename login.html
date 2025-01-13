@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+</head>
+<body>
+	<form id="login-form">
+	    <input type="email" name="email" placeholder="Email" required>
+	    <input type="password" name="password" placeholder="Password" required>
+	    <button type="submit">Login</button>
+	</form>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script>
+	    document.getElementById('login-form').addEventListener('submit', function(event) {
+	        event.preventDefault();
+	        
+	        const formData = new FormData(this);
+	        
+	        axios.post('http://localhost/api/spa.login', {
+	            email: formData.get('email'),
+	            password: formData.get('password')
+	        })
+	        .then(response => {
+	            const token = response.data.token;
+	            
+	            // Salva il token nel localStorage
+	            localStorage.setItem('spa_token', token);
+	            
+	            // Reindirizza l'utente alla pagina protetta
+	            window.location.href = './index.html'; 
+	        })
+	        .catch(error => {
+	            console.error('Error logging in:', error);
+	        });
+	    });
+	</script>
+</body>
+</html>
