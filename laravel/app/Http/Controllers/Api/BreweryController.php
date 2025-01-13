@@ -14,11 +14,11 @@ class BreweryController extends Controller
     private $api_version = "v1";
 
     /**
-     * Get Breweries list
+     * Get Breweries list with meta
      * 
-     * @param obj $request - Illuminate Http Request
+     * @param \App\Http\Requests\BreweryListRequest $request - The validated BreweryListRequest request object
      * 
-     * @return json
+     * @return \Illuminate\Http\JsonResponse - The JSON response
      */
     public function index(\App\Http\Requests\BreweryListRequest $request)
     {
@@ -31,8 +31,6 @@ class BreweryController extends Controller
         $page = $validated_req['page'];
         $total = $metadata['total'] ?? 0;
         $totalPages = ceil($total / $perPage);
-
-
 
         $response = $this->getBreweries($validated_req);
 
@@ -57,6 +55,13 @@ class BreweryController extends Controller
 
     }
 
+    /**
+     * Get Breweries list from remote API
+     * 
+     * @param \App\Http\Requests\BreweryListRequest - The BreweryListRequest request object
+     * 
+     * @return \Illuminate\Http\JsonResponse - The JSON response
+     */
     public function getBreweries($request) {
 
         $url = "{$this->api_url}/{$this->api_version}/breweries";
@@ -68,9 +73,8 @@ class BreweryController extends Controller
     }
 
     /**
-     * Get Breweries metadata
+     * Get Breweries metadata from remote API
      * 
-     * @param obj $request - Illuminate Http Request
      * 
      * @return json
      */

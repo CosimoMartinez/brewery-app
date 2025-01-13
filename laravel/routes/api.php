@@ -13,7 +13,6 @@ Route::post('/spa.login', function (Request $request) {
 
         $user = Auth::user();
 
-        // Cerca un token esistente con il nome 'spa_token'
         $existingToken = $user->tokens()->where('name', 'spa_token')->first();
 
         if ($existingToken) {

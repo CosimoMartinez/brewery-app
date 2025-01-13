@@ -41,10 +41,9 @@
             const token = response.data.token;
 
             if (token) {
-                // Save the token in localStorage
+                // Save token in localStorage
                 localStorage.setItem('spa_token', token);
                 
-                // Redirect the user to the protected page
                 window.location.href = './index.html'; 
             } else {
                 console.error('Login failed: Token is null');
