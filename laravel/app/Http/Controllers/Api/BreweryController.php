@@ -32,20 +32,26 @@ class BreweryController extends Controller
         $total = $metadata['total'] ?? 0;
         $totalPages = ceil($total / $perPage);
 
-        $breweries = $this->getBreweries($validated_req);
 
-        $status = $breweries['status'] ?? 200; 
 
-        // Prepara i dati di risposta
-        $data = [
-            'data' => $breweries['data'],
-            'meta' => [
-                'total' => $total,
-                'per_page' => $perPage,
-                'page' => $page,
-                'total_pages' => $totalPages,
-            ],
-        ];
+        $response = $this->getBreweries($validated_req);
+
+        if($response->failed()) {
+            throw new \Exception('API esterna ha restituito un errore', $response->status());
+        }
+        else {
+
+            $data = [
+                'data' => $response->json(),
+                'meta' => [
+                    'total' => $total,
+                    'per_page' => $perPage,
+                    'page' => $page,
+                    'total_pages' => $totalPages,
+                ],
+            ];   
+            $status = 200; 
+        }
 
         return response()->json($data, $status);
 
@@ -57,10 +63,7 @@ class BreweryController extends Controller
 
         $response = Http::get($url, $request);
 
-        return [
-            'data' => $response->json(),
-            'status' => $response->status(),
-        ];
+        return $response;
 
     }
 
