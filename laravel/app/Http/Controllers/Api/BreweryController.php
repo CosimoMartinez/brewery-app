@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class BreweryController extends Controller
 {
@@ -22,36 +24,41 @@ class BreweryController extends Controller
      */
     public function index(\App\Http\Requests\BreweryListRequest $request)
     {
-
-        $metadata = $this->getBreweriesMetadata();
-
         $validated_req = $request->validated();
 
-        $perPage = $validated_req['per_page'];
-        $page = $validated_req['page'];
-        $total = $metadata['total'] ?? 0;
-        $totalPages = ceil($total / $perPage);
+        $cacheKey = 'breweries_list_page_' . $validated_req['page'] . '_perpage_' . $validated_req['per_page'];
 
-        $response = $this->getBreweries($validated_req);
+        return Cache::remember($cacheKey, 60, function() use ($validated_req) {
 
-        if($response->failed()) {
-            throw new \Exception('API esterna ha restituito un errore', $response->status());
-        }
-        else {
+            $metadata = $this->getBreweriesMetadata();
 
-            $data = [
-                'data' => $response->json(),
-                'meta' => [
-                    'total' => $total,
-                    'per_page' => $perPage,
-                    'page' => $page,
-                    'total_pages' => $totalPages,
-                ],
-            ];   
-            $status = 200; 
-        }
+            $perPage = $validated_req['per_page'];
+            $page = $validated_req['page'];
+            $total = $metadata['total'] ?? 0;
+            $totalPages = ceil($total / $perPage);
 
-        return response()->json($data, $status);
+            $response = $this->getBreweries($validated_req);
+
+            if($response->failed()) {
+                throw new \Exception('API esterna ha restituito un errore', $response->status());
+            }
+            else {
+
+                $data = [
+                    'data' => $response->json(),
+                    'meta' => [
+                        'total' => $total,
+                        'per_page' => $perPage,
+                        'page' => $page,
+                        'total_pages' => $totalPages,
+                    ],
+                ];   
+                $status = 200; 
+            }
+
+            return response()->json($data, $status);
+
+        });
 
     }
 
